@@ -1,0 +1,155 @@
+;Diego Vanni (https://github.com/diegohvanni) - November, 22 - 2023
+;English version of mars3ChiTu MB Specification based on the "mars3ChiTu Mainboard SpecificationV3.0.920210812.gcode" file provided by Elegoo
+
+;CONFIGURATION BEGINS
+M8513
+
+;ALL AXIS MOVEMENT DIRECTIONS
+;I1 and I-1 are opposite directions. So, if the motor moves in the incorrect direction, revert these parameters.
+M8002 I-1 ;X stepper motor direction
+M8003 I1  ;Y stepper motor direction
+M8004 I-1 ;Z stepper motor direction
+
+;MANUAL INTERFACE BUTTONS DIRECTION
+M8005 Z0 ;0: Z-axis moves up
+         ;1: Z-axis moves down
+
+;INITIAL SPEED
+;The Speeds are measured in mm/s and the acceleration in mm/s^2.
+;Maximum initial speed (Note: If the movement speed exceeds this speed, it will use this speed as the initial speed)
+;The initial speed is mainly to prevent step skipping. (Attention: If the inicial speed value is too small, it will cause angular protrusions when printing circles).
+M8006 I30 
+
+;MAX JERK SPEED		  
+;Maximum jerk speed value (corresponding to jerk speed in open-source firmware). If the actual jerk speed of the movement is greater than this value,
+;it will force the movement to decelerate. When filling, there will be a lot of back and forth movement. A large value causes noise and is prone to cause step skipping.
+;A small value results in slow speed. When printing at high speeds, print quality may be relatively poor.
+M8007 I15 		
+		
+;ACCELERATION
+;The larger this value, the greater the average speed of the actual operation, but also noisier. A smaller value results in a smaller actual speed.		
+M8008 I1000 
+
+;AXIS MOVEMENT MATH (DO NOT TOUCH IF YOUR PRINTER USES THE OEM STEPPER MOTOR!)
+;After setting these parameters, please print a cube and measure the dimensions with a ruler to confirm that the parameters are correct.
+;For example, with 20 teeth and a pitch of 2mm (MXL specification, 2GT pitch is 2mm), 1.8-degree stepper motor, 16 subdivisions, it is (20*2)/((360/1.8)*16)
+;If you need to independently set X and Y stepper motor parameters, you can use M8009 X0.0125 Y0.0125
+M8009 S0.0125 
+M8010 S0.000625 ;On non-delta machines, the formula is: lead / ((360/1.8)*16).
+
+;AXIS MOVEMENT SPEED
+;To ensure machine stability, set according to actual test results.
+M8012 I200 ;Maximum speed of XY movement in mm/s
+M8013 I5   ;Maximum speed of Z movement in mm/s
+
+;HOMING SPEED
+M8015 I3   ;First homing speed (faster). The manual interface's Z movement and Z-axis lifting will follow the same value
+M8016 I1.5 ;Second homing speed (slower). Smaller speeds can improve the home positioning accuracy. If this parameter is 0, the second homing will not be performed.
+M8015 S30  ;Homing speed when XY is homed (fast). The manual interface's XY movement and XY axis movements will follow the same value.
+
+;Z-AXIS DISTANCES AND SPEEDS DURING DEMOLD
+;During the demolding process, the Z-axis will rise slowly, then quickly, stays for a while, start descending quickly, and finally descend slowly.
+M8070 S3.0 ;Ascent distance in mm
+M8021 S1.7 ;Descent distance in mm
+M8015 P1.0 ;Slower Ascent speed in mm/s
+M8020 S1.0 ;Slower Descent speed in mm/s
+M8028 S3.0 ;Faster Ascent speed in mm/s
+M8016 P3.0 ;Faster Descent speed in mm/s (In older boards, the M8016 value is used for the fast ascent and slow descent speeds)
+
+;Z-AXIS MOVEMENT DURING PRINT
+;If Z movement is not needed, set it to 0
+M8070 Z7 
+
+;WAITING TIME AFTER Z-AXIS RAISES
+M8016 D0 ;Milliseconds
+
+;TRAVEL DISTANCES
+M8024 I0   ;Maximum travel distance for X-axis. The X-axis can be used for demolding or scraping. If you machine has only the Z-Axis, set this value to zero.
+M8025 I0   ;Maximum travel distance for Y-axis. The Y-axis is used to block the lens of the projector. It blocks the lens at the zero position during homing and does not block it at the maximum travel position. If you machine has only the Z-Axis, set this value to zero.
+M8026 I175 ;Maximum travel distance for Z-axis. The Max Z-axis travel for Mars 3 PRO is 175mm. After pausing and printing completion, the Z-axis will stay at the maximum travel position.
+
+;LIMIT RANGES (DO NOT TOUCH)
+M8029 I0 ;0: Single-sided limit (Only uses X-, Y-, Z- limits, does not use Z+)
+         ;2: if Double-sided limit (If both Z+ and Z- limits are used simultaneously, Z+ can limit the maximum travel of Z)
+
+;LIMIT SWITCH CONFIGURATION
+;If this configuration is incorrect, when operating the motor in a certain direction in the manual interface, the motor may not move, and the buzzer will make a beeping sound.
+;If the configuration is correct, the buzzer will make a beeping sound when transitioning from unbounded to bounded. If the phenomenon is reversed, modify this configuration.
+M8029 T0 ;0: Limit switch normally open (high voltage when unbounded - and s, low voltage when bounded)
+         ;1: Limit switch normally closed (low voltage when unbounded - and s, high voltage when bounded)
+
+;Z LIMITS
+M8029 S0 ;0: Limit when the extruder is closer to the platform (limit switch connected to Z-)
+         ;1: Limit when the extruder is far distant from the platform (limit switch connected to Z+)
+
+;ZERO POSITIONING
+M8029 C0 ;0: Return to XYZ (0,0,0) position, where the extruder returns to the zero position.
+         ;1: Stay at the limit position.
+
+;FAN 1 CONTROL (CIRCUIT BOARD)
+M8030 I-2 ;>0: If forced fan 1 is greater than a certain temperature, automatically turn on the fan (Set a temperature greater than 0).
+          ;0: If set to 0, it defaults to off.
+          ;-1: Always on (MF)
+          ;-2: On during printing, off when not printing (EF)
+
+;FAN 2 CONTROL (UV CURING LED)
+M8030 T-2 ;0: If set to 0, it defaults to off.
+          ;1: If greater than 0, fan 2 turns on once exposed, and stops when not exposed (LED)
+          ;-1: Always on (MF)
+          ;-2: On during printing, off when not printing (EF)
+
+;UV CURING LED CONTROL
+M8030 S4 ;0: Normally off
+         ;1: Normally on
+         ;2: On during printing, off when not printing (EF)
+         ;3: Off during printing, on when not printing
+         ;4: Once exposed, LED turns on, and stops when not exposed (LED)
+
+;SD CARD/USB STICK SUPPORT (SHOW ON SCREEN)
+M8034 I1 ;0: Not supported
+         ;1: Supported
+
+;UV CURING LED WARM-UP TIME
+M8070 T10 ;Unit is seconds
+
+;SERIAL PORT BAUD RATE
+M8070 I9600 ;Projector communication baud rate
+
+;ALLOW SPECIAL CHARACTERS (DO NOT TOUCH)
+M8070 '* 0 IR 001\r' ;Special characters like \r, \n, \t, \x6e can be used to represent carriage return, newline, tab, and hexadecimal 0x6e. Supports up to 40 characters.
+
+;UV CURING LED POWER OFF COMMAND INSTRUCTIONS (DO NOT TOUCH)
+M8071 '* 0 IR 002\r' ;Projector power-off command
+
+;MACHINE TYPE
+M8080 I0 ;0: Cartesian
+
+;TEMPERATURE SENSOR TYPE
+M8081 I0 ;0: Ideal NTC 100K 1% 3950 B
+
+;Z-AXIS LIMIT AND OFFSET
+M8083 I1 ;0: Limit position is the same as Z zero point. 1: Limit position is different from Z zero point. Needs to be used with M8084 Z* command.
+         ;Limit position is different from Z zero point. Needs to be used with M8084 Z* command.
+M8084 Z0 ;Z Offset. You can automatically configure the offset through the "Set Z to Zero" option on the interface.
+
+;BOOT LOGO - DISPLAY TIME
+M8085 I3000 ;Between 100ms and 6000ms
+
+;SCREENSAVER
+M8085 T0 ;Time to enter screensaver mode when idle in seconds. When set to 0, the screensaver is disabled.
+
+;EXTERNAL DRIVE SETTINGS (DO NOT TOUCH)
+M8087 I0 T0 ;I: Effective time from direction signal to the establishment of a high level of pulse signal, unit is ns
+            ;T: Shortest duration of the pulse signal, unit is ns. If there is no external drive control board, set both to zero.
+            ;Several parameters for external drive: THB7128: I100000 T0; TB6560: I40000 T0; TB6600: I100000 T0
+
+;POST PRINT ACTIONS
+M8489 P3 ;Actions after printing is complete
+         ;0: Turn off all motors
+         ;1: No action
+         ;2: Goes back to Home position (DO NOT USE)
+         ;3: Raises to Z MAX
+
+;SAVE CONFIGURATION
+;Do not omit this parameter, otherwise, parameters will not be saved to the device
+M8500 ;Save configuration
