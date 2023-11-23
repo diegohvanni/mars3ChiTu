@@ -1,27 +1,27 @@
 ;Diego Vanni (https://github.com/diegohvanni) - November, 22 - 2023
-;English version of mars3ChiTu MB Specification based on the "mars3ChiTu Mainboard SpecificationV3.0.920210812.gcode" file provided by Elegoo
+;English version of mars3ChiTu MB Specification based on the "mars3ChiTu Mainboard SpecificationV3.0.920210812.gcode.txt" file provided by Elegoo
 
-;CONFIGURATION BEGINS
+;CLEANING PREVIOUS PARAMETERS PRIOR TO SETTING NEW ONES
 M8513
 
-;ALL AXIS MOVEMENT DIRECTIONS
+;STEPPER MOTOR DIRECTIONS
 ;I1 and I-1 are opposite directions. So, if the motor moves in the incorrect direction, revert these parameters.
 M8002 I-1 ;X stepper motor direction
 M8003 I1  ;Y stepper motor direction
 M8004 I-1 ;Z stepper motor direction
 
-;MANUAL INTERFACE BUTTONS DIRECTION
+;Z-AXIS MANUAL INTERFACE BUTTONS DIRECTION
 M8005 Z0 ;0: Z-axis moves up
          ;1: Z-axis moves down
 
-;INITIAL SPEED
+;Z-AXIS INITIAL SPEED
 ;The Speeds are measured in mm/s and the acceleration in mm/s^2.
 ;Maximum initial speed (Note: If the movement speed exceeds this speed, it will use this speed as the initial speed)
 ;The initial speed is mainly to prevent step skipping. (Attention: If the inicial speed value is too small, it will cause angular protrusions when printing circles).
 M8006 I30 
 
 ;MAX JERK SPEED		  
-;Maximum jerk speed value (corresponding to jerk speed in open-source firmware). If the actual jerk speed of the movement is greater than this value,
+;The jerk speed value (corresponding to jerk speed in open-source firmware). If the actual jerk speed of the movement is greater than this value,
 ;it will force the movement to decelerate. When filling, there will be a lot of back and forth movement. A large value causes noise and is prone to cause step skipping.
 ;A small value results in slow speed. When printing at high speeds, print quality may be relatively poor.
 M8007 I15 		
@@ -30,7 +30,7 @@ M8007 I15
 ;The larger this value, the greater the average speed of the actual operation, but also noisier. A smaller value results in a smaller actual speed.		
 M8008 I1000 
 
-;AXIS MOVEMENT MATH (DO NOT TOUCH IF YOUR PRINTER USES THE OEM STEPPER MOTOR!)
+;AXIS MOVEMENT - STEPS PER MM (DO NOT TOUCH IF YOUR PRINTER USES THE OEM STEPPER MOTOR!)
 ;After setting these parameters, please print a cube and measure the dimensions with a ruler to confirm that the parameters are correct.
 ;For example, with 20 teeth and a pitch of 2mm (MXL specification, 2GT pitch is 2mm), 1.8-degree stepper motor, 16 subdivisions, it is (20*2)/((360/1.8)*16)
 ;If you need to independently set X and Y stepper motor parameters, you can use M8009 X0.0125 Y0.0125
@@ -63,12 +63,12 @@ M8070 Z7
 ;WAITING TIME AFTER Z-AXIS RAISES
 M8016 D0 ;Milliseconds
 
-;TRAVEL DISTANCES
+;MAX TRAVEL DISTANCES
 M8024 I0   ;Maximum travel distance for X-axis. The X-axis can be used for demolding or scraping. If you machine has only the Z-Axis, set this value to zero.
 M8025 I0   ;Maximum travel distance for Y-axis. The Y-axis is used to block the lens of the projector. It blocks the lens at the zero position during homing and does not block it at the maximum travel position. If you machine has only the Z-Axis, set this value to zero.
 M8026 I175 ;Maximum travel distance for Z-axis. The Max Z-axis travel for Mars 3 PRO is 175mm. After pausing and printing completion, the Z-axis will stay at the maximum travel position.
 
-;LIMIT RANGES (DO NOT TOUCH)
+;HOME LOCATION (DO NOT TOUCH)
 M8029 I0 ;0: Single-sided limit (Only uses X-, Y-, Z- limits, does not use Z+)
          ;2: if Double-sided limit (If both Z+ and Z- limits are used simultaneously, Z+ can limit the maximum travel of Z)
 
@@ -132,8 +132,8 @@ M8083 I1 ;0: Limit position is the same as Z zero point. 1: Limit position is di
          ;Limit position is different from Z zero point. Needs to be used with M8084 Z* command.
 M8084 Z0 ;Z Offset. You can automatically configure the offset through the "Set Z to Zero" option on the interface.
 
-;BOOT LOGO - DISPLAY TIME
-M8085 I3000 ;Between 100ms and 6000ms
+;BOOT SCREEN
+M8085 I3000 ;Between 100ms and 6000ms.
 
 ;SCREENSAVER
 M8085 T0 ;Time to enter screensaver mode when idle in seconds. When set to 0, the screensaver is disabled.
@@ -150,6 +150,6 @@ M8489 P3 ;Actions after printing is complete
          ;2: Goes back to Home position (DO NOT USE)
          ;3: Raises to Z MAX
 
-;SAVE CONFIGURATION
+;SAVING CONFIGURATION
 ;Do not omit this parameter, otherwise, parameters will not be saved to the device
-M8500 ;Save configuration
+M8500
